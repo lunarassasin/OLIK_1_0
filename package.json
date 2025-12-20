@@ -1,21 +1,24 @@
 {
   "name": "olik_1_0",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "CBE Receipt Generator",
   "dependencies": {
-    "body-parser": "^2.2.1",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "number-to-words": "^1.2.4",
-    "pdfkit": "^0.17.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "number-to-words": "^1.2.0",
+    "pdfkit": "^0.15.0",
     "svg-to-pdfkit": "^0.1.8"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
