@@ -67,7 +67,7 @@ app.post('/generate-pdf', (req, res) => {
     });
 
     // --- 3. PAYMENT INFORMATION BOX ---
-    doc.rect(20, 410, 760, 500).lineWidth(1.5).stroke('#81007f');
+    doc.rect(20, 410, 760, 495).lineWidth(1.5).stroke('#81007f');
     doc.fillColor('#81007f').font('Helvetica').fontSize(22).text('Payment / Transaction Information', 20, 430, { align: 'center', width: 760 });
     doc.moveTo(20, 455).lineTo(780, 455).lineWidth(1.5).stroke('#000');
 
@@ -121,7 +121,7 @@ app.post('/generate-pdf', (req, res) => {
 
     doc.rect(180, 930, 440, 60).lineWidth(1.5).stroke('#81007f');
     doc.fillColor('#333').font('Helvetica').fontSize(14).text('Amount in Word', 60, 955);
-    doc.fillColor('#000').font('Helvetica').text(`ETB ${toWords(Math.floor(total)).toUpperCase()}${centsText}`, 180, 955, { 
+    doc.fillColor('#333').font('Helvetica').fontSize(10).text(`ETB ${toWords(Math.floor(total)).toUpperCase()}${centsText}`, 180, 955, { 
         align: 'center', 
         width: 440,
         lineGap: 2
