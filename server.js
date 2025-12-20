@@ -112,7 +112,8 @@ app.post('/generate-pdf', (req, res) => {
     doc.fillColor('black').rect(675, 945, 30, 30).fill();
 
     // --- 7. FOOTER ---
-    doc.rect(100, 1040, 600, 70).radius(10).lineWidth(1.5).stroke('#81007f');
+    // Change doc.rect(...).radius(10) to doc.roundedRect(...)
+    doc.roundedRect(100, 1040, 600, 70, 10).lineWidth(1.5).stroke('#81007f');
     doc.fillColor('#81007f').font('Helvetica-Bold').fontSize(18).text('The Bank you can always rely on.', 100, 1060, { align: 'center', width: 600 });
     doc.fillColor('#333').font('Helvetica').fontSize(12).text('© 2025 Commercial Bank of Ethiopia. All rights reserved.', 100, 1085, { align: 'center', width: 600 });
 
