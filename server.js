@@ -11,7 +11,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Ensure public directory exists for storing PDFs
 const publicDir = path.join(__dirname, 'public');
 if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir);
@@ -26,8 +25,6 @@ app.post('/generate-pdf', (req, res) => {
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
-    // --- Assets ---
-    // Ensure these files are uploaded to your 'assets' folder on GitHub
     const logoPath = path.join(__dirname, 'assets', 'logo.png');
     const stampPath = path.join(__dirname, 'assets', 'cbe_stamp.png');
 
@@ -43,22 +40,26 @@ app.post('/generate-pdf', (req, res) => {
     doc.fillColor('#333333').font('Helvetica-Bold').fontSize(14).text('Company Address & Other Information', 30, 140);
     doc.text('Customer Information', 430, 140);
 
-    doc.fontSize(12).font('Helvetica');
-    // Left Grid
+    doc.fontSize(11).font('Helvetica'); // Content details use normal Helvetica
     const leftGrid = [
         ['Country:', 'Ethiopia'], ['City:', 'Addis Ababa'], 
-        ['SWIFT Code:', 'CBETETAA'], ['Tin:', '0000000868'],
-        ['VAT Receipt No:', data.txId]
+        ['Address:', 'Ras Desta Damtew St, 01, Kirkos'], ['Postal code:', '255'],
+        ['SWIFT Code:', 'CBETETAA'], ['Email:', 'info@cbe.com.et'],
+        ['Tel:', '251-551-42-04'], ['Fax:', '251-551-43-24'],
+        ['Tin:', '0000000868'], ['VAT Receipt No:', data.txId],
+        ['VAT Registration No:', '011140'], ['VAT Registration Date', '01/01/2003']
     ];
     leftGrid.forEach((row, i) => {
         doc.fillColor('#333').text(row[0], 30, 165 + (i * 20));
-        doc.fillColor('#000').text(row[1], 170, 165 + (i * 20));
+        doc.fillColor('#000').text(row[1], 150, 165 + (i * 20));
     });
 
-    // Right Grid
     const rightGrid = [
-        ['Customer Name:', data.sender], ['City:', 'Addis Ababa'],
-        ['Branch:', 'BISHOFTU MENANERIA BR']
+        ['Customer Name:', data.sender], ['Region:', '-'],
+        ['City:', 'YEKAWOREDA.6'],
+        ['Sub City:', '-'], ['Wereda/Kebele:', '-'],
+        ['VAT Registration No:', '-'], ['VAT Registration Date', '20024026'],
+        ['TIN ( TAX ID):', '-'], ['Branch:', 'BISHOFTU MENANERIA BR']
     ];
     rightGrid.forEach((row, i) => {
         doc.fillColor('#333').text(row[0], 430, 165 + (i * 20));
@@ -70,49 +71,67 @@ app.post('/generate-pdf', (req, res) => {
     doc.fillColor('#81007f').font('Helvetica-Bold').fontSize(22).text('Payment / Transaction Information', 20, 435, { align: 'center', width: 760 });
     doc.moveTo(20, 455).lineTo(780, 455).lineWidth(1.5).stroke('#000');
 
-    // --- 4. STAMP (Behind Text) ---
+    // --- 4. STAMP (Centered behind text) ---
     if (fs.existsSync(stampPath)) {
         doc.save();
-        doc.opacity(0.8);
-        doc.rotate(-10, { origin: [380, 660] });
-        doc.image(stampPath, 280, 580, { width: 200 });
+        doc.opacity(0.6);
+        doc.rotate(-10, { origin: [400, 660] });
+        doc.image(stampPath, 300, 560, { width: 200 });
         doc.restore();
     }
 
-    // --- 5. TABLE DATA ---
+    // --- 5. CALCULATIONS ---
     const amtNum = parseFloat(data.amt.toString().replace(/,/g, '')) || 0;
     const commission = 3.00;
-    const vat = 0.45;
-    const total = amtNum + commission + vat;
+    const vatAmount = commission * 0.15;
+    const total = amtNum + commission + vatAmount;
 
     const tableData = [
         ['Payer', data.sender],
+        ['Account', '1****9034'],
         ['Receiver', data.receiver],
+        ['Account', `1****${data.last4 || '0000'}`],
         ['Payment Date & Time', data.date],
-        ['Reference No.', data.txId],
-        ['Transferred Amount', `${data.amt} ETB`],
-        ['Commission', `${commission.toFixed(2)} ETB`],
-        ['Total Debited', `${total.toLocaleString(undefined, {minimumFractionDigits: 2})} ETB`]
+        ['Reference No. (VAT Invoice No)', data.txId],
+        ['Reason / Type of service', 'SGS done via Mobile'],
+        ['Transferred Amount', `${amtNum.toLocaleString(undefined, {minimumFractionDigits: 2})} ETB`],
+        ['Commission or Service Charge', `${commission.toFixed(2)} ETB`],
+        ['15% VAT on Commission', `${vatAmount.toFixed(2)} ETB`],
+        ['Total amount debited from customer account', `${total.toLocaleString(undefined, {minimumFractionDigits: 2})} ETB`]
     ];
 
+    // --- FIXING TABLE ALIGNMENT ---
     tableData.forEach((row, i) => {
-        const y = 485 + (i * 40);
-        doc.fillColor('#333').font('Helvetica').fontSize(14).text(row[0], 40, y);
-        doc.fillColor('#000').font('Helvetica-Bold').text(row[1], 760, y, { align: 'right' });
-        doc.moveTo(40, y + 15).lineTo(760, y + 15).lineWidth(1).stroke('#000');
+        const y = 475 + (i * 40);
+        doc.fillColor('#333').font('Helvetica').fontSize(13).text(row[0], 40, y);
+        
+        // Use a defined width and 'right' alignment to prevent text bunching
+        doc.fillColor('#000').font('Helvetica').text(row[1], 400, y, { 
+            align: 'right', 
+            width: 360 
+        });
+
+        // Drawing the separator line
+        doc.moveTo(40, y + 18).lineTo(760, y + 18).lineWidth(0.5).stroke('#ccc');
     });
 
     // --- 6. AMOUNT IN WORDS ---
+    const cents = Math.round((total % 1) * 100);
+    const centsText = cents > 0 ? ` AND ${toWords(cents).toUpperCase()} CENTS` : " ONLY";
+
     doc.rect(180, 930, 440, 60).lineWidth(1.5).stroke('#81007f');
-    doc.fillColor('#333').fontSize(14).text('Amount in Word', 60, 960);
-    doc.fillColor('#000').text(`ETB ${toWords(total).toUpperCase()} AND FORTY FIVE CENTS`, 180, 960, { align: 'center', width: 440 });
+    doc.fillColor('#333').font('Helvetica').fontSize(14).text('Amount in Word', 60, 955);
+    doc.fillColor('#000').font('Helvetica').text(`ETB ${toWords(Math.floor(total)).toUpperCase()}${centsText}`, 180, 945, { 
+        align: 'center', 
+        width: 440,
+        lineGap: 2
+    });
 
     // Mock QR Code Box
     doc.rect(650, 920, 80, 80).lineWidth(1).stroke('#000');
     doc.fillColor('black').rect(675, 945, 30, 30).fill();
 
     // --- 7. FOOTER ---
-    // Change doc.rect(...).radius(10) to doc.roundedRect(...)
     doc.roundedRect(100, 1040, 600, 70, 10).lineWidth(1.5).stroke('#81007f');
     doc.fillColor('#81007f').font('Helvetica-Bold').fontSize(18).text('The Bank you can always rely on.', 100, 1060, { align: 'center', width: 600 });
     doc.fillColor('#333').font('Helvetica').fontSize(12).text('© 2025 Commercial Bank of Ethiopia. All rights reserved.', 100, 1085, { align: 'center', width: 600 });
@@ -120,8 +139,6 @@ app.post('/generate-pdf', (req, res) => {
     doc.end();
 
     stream.on('finish', () => {
-        // Construct the URL dynamically based on the request header
-        // This ensures it works on Render regardless of the domain name
         const protocol = req.headers['x-forwarded-proto'] || 'http';
         const host = req.headers.host;
         res.json({ url: `${protocol}://${host}/public/${fileName}` });
