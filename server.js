@@ -67,8 +67,8 @@ app.post('/generate-pdf', (req, res) => {
     });
 
     // --- 3. PAYMENT INFORMATION BOX ---
-    doc.rect(20, 410, 760, 505).lineWidth(1.5).stroke('#81007f');
-    doc.fillColor('#81007f').font('Helvetica-Bold').fontSize(22).text('Payment / Transaction Information', 20, 435, { align: 'center', width: 760 });
+    doc.rect(20, 410, 760, 500).lineWidth(1.5).stroke('#81007f');
+    doc.fillColor('#81007f').font('Helvetica').fontSize(22).text('Payment / Transaction Information', 20, 430, { align: 'center', width: 760 });
     doc.moveTo(20, 455).lineTo(780, 455).lineWidth(1.5).stroke('#000');
 
     // --- 4. STAMP (Centered behind text) ---
@@ -90,7 +90,7 @@ app.post('/generate-pdf', (req, res) => {
         ['Payer', data.sender],
         ['Account', '1****9034'],
         ['Receiver', data.receiver],
-        ['Account', `1****${data.last4}`],
+        ['Account', `1****${data.account}`],
         ['Payment Date & Time', data.date],
         ['Reference No. (VAT Invoice No)', data.txId],
         ['Reason / Type of service', 'SGS done via Mobile'],
@@ -103,7 +103,7 @@ app.post('/generate-pdf', (req, res) => {
     // --- FIXING TABLE ALIGNMENT ---
     tableData.forEach((row, i) => {
         const y = 475 + (i * 40);
-        doc.fillColor('#333').font('Helvetica').fontSize(15).text(row[0], 80, y);
+        doc.fillColor('#333').font('Helvetica').fontSize(15).text(row[0], 60, y);
         
         // Use a defined width and 'right' alignment to prevent text bunching
         doc.fillColor('#333').font('Helvetica').fontSize(15).text(row[1], 400, y, { 
