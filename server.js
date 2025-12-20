@@ -31,7 +31,7 @@ app.post('/generate-pdf', (req, res) => {
     // --- 1. HEADER ---
     doc.rect(20, 20, 760, 90).fill('#81007f');
     if (fs.existsSync(logoPath)) {
-        doc.image(logoPath, 70, 30, { width: 70 });
+        doc.image(logoPath, 80, 30, { width: 70 });
     }
     doc.fillColor('white').font('Helvetica').fontSize(28).text('Commercial Bank of Ethiopia', 100, 30, { align: 'center', width: 660 });
     doc.fontSize(23).font('Helvetica').text('VAT Invoice / Customer Receipt', 100, 65, { align: 'center', width: 660 });
@@ -121,7 +121,7 @@ app.post('/generate-pdf', (req, res) => {
 
     doc.rect(180, 930, 440, 60).lineWidth(1.5).stroke('#81007f');
     doc.fillColor('#333').font('Helvetica').fontSize(14).text('Amount in Word', 60, 955);
-    doc.fillColor('#333').font('Helvetica').fontSize(10).text(`ETB ${toWords(Math.floor(total)).toUpperCase()}${centsText}`, 180, 955, { 
+    doc.fillColor('#333').font('Helvetica').fontSize(13).text(`ETB ${toWords(Math.floor(total)).toUpperCase()}${centsText}`, 180, 955, { 
         align: 'center', 
         width: 440,
         lineGap: 2
