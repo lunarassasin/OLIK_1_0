@@ -10,16 +10,23 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// Ensure public directory exists for storing PDFs
+const publicDir = path.join(__dirname, 'public');
+if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir);
+}
+
 app.post('/generate-pdf', (req, res) => {
-    const data = req.body; // Expects sender, receiver, amt, date, txId
+    const data = req.body; 
     const doc = new PDFDocument({ size: [800, 1200], margin: 0 });
     const fileName = `receipt_${data.txId}.pdf`;
-    const filePath = path.join(__dirname, 'public', fileName);
+    const filePath = path.join(publicDir, fileName);
 
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
     // --- Assets ---
+    // Ensure these files are uploaded to your 'assets' folder on GitHub
     const logoPath = path.join(__dirname, 'assets', 'logo.png');
     const stampPath = path.join(__dirname, 'assets', 'cbe_stamp.png');
 
@@ -72,7 +79,7 @@ app.post('/generate-pdf', (req, res) => {
     }
 
     // --- 5. TABLE DATA ---
-    const amtNum = parseFloat(data.amt.replace(/,/g, ''));
+    const amtNum = parseFloat(data.amt.toString().replace(/,/g, '')) || 0;
     const commission = 3.00;
     const vat = 0.45;
     const total = amtNum + commission + vat;
@@ -84,7 +91,7 @@ app.post('/generate-pdf', (req, res) => {
         ['Reference No.', data.txId],
         ['Transferred Amount', `${data.amt} ETB`],
         ['Commission', `${commission.toFixed(2)} ETB`],
-        ['Total Debited', `${total.toLocaleString()} ETB`]
+        ['Total Debited', `${total.toLocaleString(undefined, {minimumFractionDigits: 2})} ETB`]
     ];
 
     tableData.forEach((row, i) => {
@@ -94,10 +101,10 @@ app.post('/generate-pdf', (req, res) => {
         doc.moveTo(40, y + 15).lineTo(760, y + 15).lineWidth(1).stroke('#000');
     });
 
-    // --- 6. AMOUNT IN WORDS & QR MOCK ---
+    // --- 6. AMOUNT IN WORDS ---
     doc.rect(180, 930, 440, 60).lineWidth(1.5).stroke('#81007f');
     doc.fillColor('#333').fontSize(14).text('Amount in Word', 60, 960);
-    doc.fillColor('#000').text(`ETB ${toWords(total).toUpperCase()} CENTS`, 400, 960, { align: 'center', width: 440 });
+    doc.fillColor('#000').text(`ETB ${toWords(total).toUpperCase()} AND FORTY FIVE CENTS`, 180, 960, { align: 'center', width: 440 });
 
     // Mock QR Code Box
     doc.rect(650, 920, 80, 80).lineWidth(1).stroke('#000');
@@ -111,9 +118,17 @@ app.post('/generate-pdf', (req, res) => {
     doc.end();
 
     stream.on('finish', () => {
-        res.json({ url: `192.168.176.66:3000/public/${fileName}` });
+        // Construct the URL dynamically based on the request header
+        // This ensures it works on Render regardless of the domain name
+        const protocol = req.headers['x-forwarded-proto'] || 'http';
+        const host = req.headers.host;
+        res.json({ url: `${protocol}://${host}/public/${fileName}` });
     });
 });
 
-app.use('/public', express.static('public'));
-app.listen(3000, () => console.log('Server running on port 3000'));
+app.use('/public', express.static(publicDir));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
+});
