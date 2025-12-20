@@ -5,6 +5,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { toWords } = require('number-to-words');
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
