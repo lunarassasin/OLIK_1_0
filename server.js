@@ -31,13 +31,13 @@ app.post('/generate-pdf', (req, res) => {
     // --- 1. HEADER ---
     doc.rect(20, 20, 760, 90).fill('#81007f');
     if (fs.existsSync(logoPath)) {
-        doc.image(logoPath, 50, 30, { width: 70 });
+        doc.image(logoPath, 70, 30, { width: 70 });
     }
-    doc.fillColor('white').font('Helvetica-Bold').fontSize(28).text('Commercial Bank of Ethiopia', 100, 45, { align: 'center', width: 660 });
-    doc.fontSize(18).font('Helvetica').text('VAT Invoice / Customer Receipt', 100, 75, { align: 'center', width: 660 });
+    doc.fillColor('white').font('Helvetica').fontSize(28).text('Commercial Bank of Ethiopia', 100, 30, { align: 'center', width: 660 });
+    doc.fontSize(23).font('Helvetica').text('VAT Invoice / Customer Receipt', 100, 65, { align: 'center', width: 660 });
 
     // --- 2. ADDRESS & CUSTOMER INFO ---
-    doc.fillColor('#333333').font('Helvetica-Bold').fontSize(14).text('Company Address & Other Information', 30, 140);
+    doc.fillColor('#333333').font('Helvetica').fontSize(14).text('Company Address & Other Information', 30, 140);
     doc.text('Customer Information', 430, 140);
 
     doc.fontSize(11).font('Helvetica'); // Content details use normal Helvetica
