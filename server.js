@@ -103,7 +103,7 @@ app.post('/generate-pdf', (req, res) => {
     // --- FIXING TABLE ALIGNMENT ---
     tableData.forEach((row, i) => {
         const y = 475 + (i * 40);
-        doc.fillColor('#333').font('Helvetica').fontSize(13).text(row[0], 40, y);
+        doc.fillColor('#333').font('Helvetica').fontSize(13).text(row[0], 100, y);
         
         // Use a defined width and 'right' alignment to prevent text bunching
         doc.fillColor('#000').font('Helvetica').text(row[1], 400, y, { 
@@ -112,7 +112,7 @@ app.post('/generate-pdf', (req, res) => {
         });
 
         // Drawing the separator line
-        doc.moveTo(40, y + 18).lineTo(760, y + 18).lineWidth(0.5).stroke('#ccc');
+        doc.moveTo(20, y + 18).lineTo(780, y + 18).lineWidth(1.5).stroke('#000');
     });
 
     // --- 6. AMOUNT IN WORDS ---
@@ -121,7 +121,7 @@ app.post('/generate-pdf', (req, res) => {
 
     doc.rect(180, 930, 440, 60).lineWidth(1.5).stroke('#81007f');
     doc.fillColor('#333').font('Helvetica').fontSize(14).text('Amount in Word', 60, 955);
-    doc.fillColor('#000').font('Helvetica').text(`ETB ${toWords(Math.floor(total)).toUpperCase()}${centsText}`, 180, 945, { 
+    doc.fillColor('#000').font('Helvetica').text(`ETB ${toWords(Math.floor(total)).toUpperCase()}${centsText}`, 180, 955, { 
         align: 'center', 
         width: 440,
         lineGap: 2
