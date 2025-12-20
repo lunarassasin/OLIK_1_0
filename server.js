@@ -90,7 +90,7 @@ app.post('/generate-pdf', (req, res) => {
         ['Payer', data.sender],
         ['Account', '1****9034'],
         ['Receiver', data.receiver],
-        ['Account', `1****${data.last4 || '0000'}`],
+        ['Account', `1****${data.last4}`],
         ['Payment Date & Time', data.date],
         ['Reference No. (VAT Invoice No)', data.txId],
         ['Reason / Type of service', 'SGS done via Mobile'],
@@ -103,10 +103,10 @@ app.post('/generate-pdf', (req, res) => {
     // --- FIXING TABLE ALIGNMENT ---
     tableData.forEach((row, i) => {
         const y = 475 + (i * 40);
-        doc.fillColor('#333').font('Helvetica').fontSize(13).text(row[0], 100, y);
+        doc.fillColor('#333').font('Helvetica').fontSize(15).text(row[0], 80, y);
         
         // Use a defined width and 'right' alignment to prevent text bunching
-        doc.fillColor('#000').font('Helvetica').text(row[1], 400, y, { 
+        doc.fillColor('#333').font('Helvetica').fontSize(15).text(row[1], 400, y, { 
             align: 'right', 
             width: 360 
         });
@@ -117,7 +117,7 @@ app.post('/generate-pdf', (req, res) => {
 
     // --- 6. AMOUNT IN WORDS ---
     const cents = Math.round((total % 1) * 100);
-    const centsText = cents > 0 ? ` AND ${toWords(cents).toUpperCase()} CENTS` : " ONLY";
+    const centsText = cents > 0 ? ` & ${toWords(cents).toUpperCase()} CENTS` : " ONLY";
 
     doc.rect(180, 930, 440, 60).lineWidth(1.5).stroke('#81007f');
     doc.fillColor('#333').font('Helvetica').fontSize(14).text('Amount in Word', 60, 955);
