@@ -98,11 +98,11 @@ app.post('/generate-pdf', async (req, res) => {
         if (fs.existsSync(logoPath)) {
             doc.image(logoPath, 80, 30, { width: 70 });
         }
-        doc.fillColor('white').font('Helvetica-Bold').fontSize(28).text('Commercial Bank of Ethiopia', 100, 30, { align: 'center', width: 660 });
+        doc.fillColor('white').font('Helvetica').fontSize(28).text('Commercial Bank of Ethiopia', 100, 30, { align: 'center', width: 660 });
         doc.fontSize(23).font('Helvetica').text('VAT Invoice / Customer Receipt', 100, 65, { align: 'center', width: 660 });
 
         // INFO GRIDS
-        doc.fillColor('#333333').font('Helvetica-Bold').fontSize(14).text('Company Address & Other Information', 30, 140);
+        doc.fillColor('#333333').font('Helvetica').fontSize(14).text('Company Address & Other Information', 30, 140);
         doc.text('Customer Information', 430, 140);
 
         const leftGrid = [
@@ -115,7 +115,7 @@ app.post('/generate-pdf', async (req, res) => {
         ];
         leftGrid.forEach((row, i) => {
             doc.fillColor('#333').font('Helvetica').fontSize(11).text(row[0], 30, 165 + (i * 20));
-            doc.fillColor('#000').font('Helvetica-Bold').text(row[1], 150, 165 + (i * 20));
+            doc.fillColor('#000').font('Helvetica').text(row[1], 150, 165 + (i * 20));
         });
 
         const rightGrid = [
@@ -127,18 +127,18 @@ app.post('/generate-pdf', async (req, res) => {
         ];
         rightGrid.forEach((row, i) => {
             doc.fillColor('#333').font('Helvetica').fontSize(11).text(row[0], 430, 165 + (i * 20));
-            doc.fillColor('#000').font('Helvetica-Bold').text(row[1], 570, 165 + (i * 20));
+            doc.fillColor('#000').font('Helvetica').text(row[1], 570, 165 + (i * 20));
         });
 
         // PAYMENT BOX
         doc.rect(20, 410, 760, 495).lineWidth(1.5).stroke('#81007f');
-        doc.fillColor('#81007f').font('Helvetica-Bold').fontSize(22).text('Payment / Transaction Information', 20, 430, { align: 'center', width: 760 });
+        doc.fillColor('#81007f').font('Helvetica').fontSize(22).text('Payment / Transaction Information', 20, 430, { align: 'center', width: 760 });
         doc.moveTo(20, 455).lineTo(780, 455).lineWidth(1.5).stroke('#000');
 
         // STAMP
         if (fs.existsSync(stampPath)) {
             doc.save();
-            doc.opacity(0.3);
+            doc.opacity(1);
             doc.rotate(-10, { origin: [400, 660] });
             doc.image(stampPath, 300, 560, { width: 200 });
             doc.restore();
@@ -167,8 +167,8 @@ app.post('/generate-pdf', async (req, res) => {
         tableData.forEach((row, i) => {
             const y = 475 + (i * 40);
             doc.fillColor('#333').font('Helvetica').fontSize(15).text(row[0], 60, y);
-            doc.fillColor('#000').font('Helvetica-Bold').fontSize(15).text(row[1], 400, y, { align: 'right', width: 360 });
-            doc.moveTo(20, y + 18).lineTo(780, y + 18).lineWidth(1).stroke('#eee');
+            doc.fillColor('#000').font('Helvetica').fontSize(15).text(row[1], 400, y, { align: 'right', width: 360 });
+            doc.moveTo(20, y + 18).lineTo(780, y + 18).lineWidth(1.5).stroke('#333');
         });
 
         // WORDS
@@ -176,11 +176,11 @@ app.post('/generate-pdf', async (req, res) => {
         const centsText = cents > 0 ? ` & ${toWords(cents).toUpperCase()} CENTS` : " ONLY";
         doc.rect(180, 930, 440, 60).lineWidth(1.5).stroke('#81007f');
         doc.fillColor('#333').font('Helvetica').fontSize(14).text('Amount in Word', 60, 955);
-        doc.fillColor('#000').font('Helvetica-Bold').fontSize(11).text(`ETB ${toWords(Math.floor(total)).toUpperCase()}${centsText}`, 180, 955, { align: 'center', width: 440 });
+        doc.fillColor('#000').font('Helvetica').fontSize(11).text(`ETB ${toWords(Math.floor(total)).toUpperCase()}${centsText}`, 180, 955, { align: 'center', width: 440 });
 
         // FOOTER
         doc.roundedRect(100, 1040, 600, 70, 10).lineWidth(1.5).stroke('#81007f');
-        doc.fillColor('#81007f').font('Helvetica-Bold').fontSize(18).text('The Bank you can always rely on.', 100, 1060, { align: 'center', width: 600 });
+        doc.fillColor('#81007f').font('Helvetica').fontSize(18).text('The Bank you can always rely on.', 100, 1060, { align: 'center', width: 600 });
         doc.fillColor('#333').font('Helvetica').fontSize(12).text('© 2025 Commercial Bank of Ethiopia. All rights reserved.', 100, 1085, { align: 'center', width: 600 });
 
         doc.end();
