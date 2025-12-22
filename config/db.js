@@ -1,26 +1,16 @@
-import mysql from 'mysql2';
-import dotenv from 'dotenv';
+const mysql = require('mysql2');
+require('dotenv').config();
 
-dotenv.config();
-
-// Create the connection pool
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0 
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    // Add these to ensure it stays connected to Render/External DBs
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-// Convert pool.query to use async/await syntax
-export const db = pool.promise();
-
-/**
- * Function to test the database connection
- */
-export const getConnection = async () => {
-  return db.getConnection();
-};
-
+// THIS IS THE FIX: It converts the callback pool into a Promise pool
+module.exports = pool.promise();
