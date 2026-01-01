@@ -20,11 +20,11 @@ if (!fs.existsSync(publicDir)) {
 // Serve public files (PDFs) statically
 app.use('/public', express.static(publicDir));
 
-// --- 1. SAVE TRANSACTION (Table: transaction_s) ---
+// --- 1. SAVE TRANSACTION (Table: transactions) ---
 app.post('/save_transaction', async (req, res) => {
     const { sender, receiver, last4, amt, fullTimestamp, tid } = req.body;
 
-    const sql = `INSERT INTO transaction_s (sender, receiver, account, amt, tx_date, txId) 
+    const sql = `INSERT INTO transactions (sender, receiver, account, amt, tx_date, txId) 
                  VALUES (?, ?, ?, ?, ?, ?)`;
 
     try {
@@ -44,11 +44,11 @@ app.post('/save_transaction', async (req, res) => {
     }
 });
 
-// --- 2. GET TRANSACTION DETAIL (Table: transaction_s) ---
+// --- 2. GET TRANSACTION DETAIL (Table: transactions) ---
 app.get('/transactions/detail/:txId', async (req, res) => {
     const { txId } = req.params;
 
-    const sql = `SELECT * FROM transaction_s WHERE txId = ?`;
+    const sql = `SELECT * FROM transactions WHERE txId = ?`;
 
     try {
         const [rows] = await db.execute(sql, [txId]);
@@ -67,7 +67,7 @@ app.get('/transactions/detail/:txId', async (req, res) => {
     }
 });
 
-// --- 3. GENERATE PDF (Table: transaction_s) ---
+// --- 3. GENERATE PDF (Table: transactions) ---
 app.post('/generate-pdf', async (req, res) => {
     const { txId } = req.body;
 
@@ -76,7 +76,7 @@ app.post('/generate-pdf', async (req, res) => {
     }
 
     try {
-        const [rows] = await db.execute('SELECT * FROM transaction_s WHERE txId = ?', [txId]);
+        const [rows] = await db.execute('SELECT * FROM transactions WHERE txId = ?', [txId]);
         
         if (rows.length === 0) {
             return res.status(404).json({ error: "Transaction record not found in database" });
@@ -200,11 +200,11 @@ app.post('/generate-pdf', async (req, res) => {
     }
 });
 
-// --- 4. GET RECEIPT LINK (Table: transaction_s) ---
+// --- 4. GET RECEIPT LINK (Table: transactions) ---
 app.get('/get-receipt-link/:txId', async (req, res) => {
     const { txId } = req.params;
     try {
-        const [rows] = await db.execute('SELECT txId FROM transaction_s WHERE txId = ?', [txId]);
+        const [rows] = await db.execute('SELECT txId FROM transactions WHERE txId = ?', [txId]);
         if (rows.length === 0) return res.status(404).json({ success: false, message: "Transaction not found." });
 
         const fileName = `receipt_${txId}.pdf`;
