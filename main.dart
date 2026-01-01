@@ -142,9 +142,9 @@ class _DialerSimulationState extends State<DialerSimulation> {
       builder: (context) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 18),
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), // here 1
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 12),
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 12), //here 2
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
