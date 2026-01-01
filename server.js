@@ -83,7 +83,7 @@ app.post('/generate-pdf', async (req, res) => {
         }
 
         const data = rows[0];
-        const doc = new PDFDocument({ size: [800, 1200], margin: 0 });
+        const doc = new PDFDocument({ size: [612, 792], margin: 0 });
         const fileName = `receipt_${data.txId}.pdf`;
         const filePath = path.join(publicDir, fileName);
         const stream = fs.createWriteStream(filePath);
